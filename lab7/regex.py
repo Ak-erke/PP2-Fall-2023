@@ -4,7 +4,8 @@ with open('row.txt', 'r', encoding='utf-8') as file:
     data = file.read()
 
 #task1
-matches = re.findall(r'а[б]*', data)
+pattern=r'а[б]*'
+matches = re.findall(pattern, data)
 print(matches)
 
 print()#task2
