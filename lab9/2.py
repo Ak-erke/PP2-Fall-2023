@@ -1,20 +1,19 @@
-import tkinter as tk
-from pygame import mixer
+import pygame
+from pygame.locals import *
+from sys import exit
 
 class MusicPlayer:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Music Player")
+    def __init__(self):
+        pygame.init()
 
-        self.play_button = tk.Button(root, text="Play", command=self.play_music)
-        self.stop_button = tk.Button(root, text="Stop", command=self.stop_music)
-        self.next_button = tk.Button(root, text="Next", command=self.next_music)
-        self.prev_button = tk.Button(root, text="Previous", command=self.prev_music)
+        self.screen = pygame.display.set_mode((500, 200), 0, 32)
+        pygame.display.set_caption("Music Player")
 
-        self.play_button.pack(pady=10)
-        self.stop_button.pack(pady=10)
-        self.next_button.pack(pady=10)
-        self.prev_button.pack(pady=10)
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont("calibri", 40)
+
+        self.playing = False
+        self.paused = False
 
         self.current_song = 0
         self.songs = [
@@ -22,24 +21,27 @@ class MusicPlayer:
             r'C:\Users\user\PP2\lab9\The Weeknd feat. Lily Rose Depp - Dollhouse.mp3',
             r'C:\Users\user\PP2\lab9\The Weeknd,JENNIE,Lily-Rose Depp - One Of The Girls (with JENNIE, Lily Rose Depp).mp3'
         ]
-        mixer.init()  # Initialize the mixer
+
+        pygame.mixer.init()
         self.play_music()
 
-        # Bind keyboard events
-        root.bind("<space>", lambda event: self.play_music())
-        root.bind("<KeyPress-s>", lambda event: self.stop_music())
-        root.bind("<Right>", lambda event: self.next_music())
-        root.bind("<Left>", lambda event: self.prev_music())
+        # Load images for buttons
+        self.play_image = pygame.image.load("48-483851_play-button-png-icono-gmail-png-clipart.png").convert_alpha()
+        self.next_image = pygame.image.load("img_447598.png").convert_alpha()
+        self.prev_image = pygame.image.load("img_146921.png").convert_alpha()
 
     def play_music(self):
-        try:
-            mixer.music.load(self.songs[self.current_song])
-            mixer.music.play()
-        except IndexError:
-            print("No songs in the playlist.")
+        pygame.mixer.music.load(self.songs[self.current_song])
+        pygame.mixer.music.play()
+        self.playing = True
 
-    def stop_music(self):
-        mixer.music.stop()
+    def toggle_play_pause(self):
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.pause()
+            self.playing = False
+        else:
+            pygame.mixer.music.unpause()
+            self.playing = True
 
     def next_music(self):
         self.current_song = (self.current_song + 1) % len(self.songs)
@@ -49,7 +51,31 @@ class MusicPlayer:
         self.current_song = (self.current_song - 1) % len(self.songs)
         self.play_music()
 
+    def run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    exit()
+
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        self.toggle_play_pause()
+                    elif event.key == K_RIGHT:
+                        self.next_music()
+                    elif event.key == K_LEFT:
+                        self.prev_music()
+
+            self.screen.fill((255, 255, 255))
+
+            # Display images for buttons
+            self.screen.blit(self.play_image, (200, 100))
+            self.screen.blit(self.next_image, (350, 50))
+            self.screen.blit(self.prev_image, (50, 50))
+
+            pygame.display.update()
+            self.clock.tick(10)
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MusicPlayer(root)
-    root.mainloop()
+    player = MusicPlayer()
+    player.run()
