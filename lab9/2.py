@@ -4,7 +4,7 @@ from sys import exit
 
 class MusicPlayer:
     def __init__(self):
-        pygame.init()
+        pygame.init() 
 
         self.screen = pygame.display.set_mode((500, 200), 0, 32)
         pygame.display.set_caption("Music Player")
